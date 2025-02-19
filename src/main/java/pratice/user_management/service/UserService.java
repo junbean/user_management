@@ -38,6 +38,8 @@ public class UserService {
      * 회원가입 (DTO -> Entity 변환 후 저장)
      */
     public void createUser(UserCreateDTO userCreateDTO) {
+        validateDuplicateUserEmail(userCreateDTO);
+
         User user = User.builder()
                 .email(userCreateDTO.getEmail())
                 .password(userCreateDTO.getPassword()) // 비밀번호는 나중에 암호화!
@@ -73,6 +75,20 @@ public class UserService {
         existingUser.updatePassword(userCreateDTO.getPassword());
 
         return new UserDTO(existingUser.getEmail(), existingUser.getUsername(), existingUser.getPhone(), existingUser.getCreatedAt());
+    }
+
+
+
+
+
+    /**
+     * 이메일 중복 검사
+     */
+    private void validateDuplicateUserEmail(UserCreateDTO userCreateDTO) {
+        repository.findByPassword(userCreateDTO.getPassword())
+                .ifPresent(u -> {
+                    throw new IllegalArgumentException("이미 존재하는 비밀번호 입니다.");
+                });
     }
 }
 

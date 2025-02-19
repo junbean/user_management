@@ -3,8 +3,13 @@ package pratice.user_management.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import pratice.user_management.domain.entity.User;
 
+import java.util.Optional;
+
 public interface UserRepository extends JpaRepository<User, Long> {
-    
+
+    // 비밀번호가 존재하는지 확인
+    Optional<User> findByPassword(String password);
+
 }
 
 /*
