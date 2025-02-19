@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController     // REST API 컨트롤러 선언
-@RequestMapping("/users")    // 모든 엔드포인트가 "/user 로 시작
+@RequestMapping("/api/users")    // 모든 엔드포인트가 "/user 로 시작
 @RequiredArgsConstructor    // 생성자 자동 생성
 public class UserController {
     private final UserService service;

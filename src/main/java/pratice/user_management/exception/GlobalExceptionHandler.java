@@ -1,34 +1,49 @@
 package pratice.user_management.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import pratice.user_management.domain.dto.ErrorResponseDTO;
 
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 특정 사용자 없음 (404)
+    // 사용자가 존재하지 않음 (404)
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?> handleUserNotFound(UserNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", ex.getMessage(), "status", 404));
+    public ResponseEntity<ErrorResponseDTO> handleUserNotFound(UserNotFoundException ex, HttpServletRequest request) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                HttpStatus.NOT_FOUND.value(),
+                "Not exist user",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // 잘못된 요청 (400)
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("error", ex.getMessage(), "status", 400));
+    public ResponseEntity<ErrorResponseDTO> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // 내부 서버 오류 (500)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGeneralException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Internal server error", "status", 500));
+    public ResponseEntity<ErrorResponseDTO> handleGeneralException(Exception ex, HttpServletRequest request) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }
 
@@ -61,15 +76,31 @@ public class GlobalExceptionHandler {
         }
     }
 
+에러 메세지 응답 DTO구현
 
 
 
 
+이전 코드 - ResponseEntity<?>
 
-{
-  "timestamp": "2023-04-16T07:28:34.039+00:00", # 예외 발생 시간
-  "status": 500, # HTTP 상태 코드
-  "error": "Internal Server Error", # 예외 유형
-  "path": "/api/articles/123" # 예외가 발생한 요청 경로
+@ExceptionHandler(UserNotFoundException.class)
+public ResponseEntity<?> handleUserNotFound(UserNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(Map.of("error", ex.getMessage(), "status", 404));
 }
+
+// 잘못된 요청 (400)
+@ExceptionHandler(IllegalArgumentException.class)
+public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Map.of("error", ex.getMessage(), "status", 400));
+}
+
+// 내부 서버 오류 (500)
+@ExceptionHandler(Exception.class)
+public ResponseEntity<?> handleGeneralException(Exception ex) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Map.of("error", "Internal server error", "status", 500));
+}
+
 */
