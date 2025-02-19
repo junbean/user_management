@@ -1,17 +1,16 @@
 package pratice.user_management.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 @Getter
-@Setter
-@NoArgsConstructor
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // 이거 뭐임?
+@AllArgsConstructor
 public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -35,21 +34,25 @@ public class User {
     private LocalDateTime updatedAt;
 
     @PrePersist
-    public void prePersist() {
+    protected void prePersist() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    public void preUpdate() {
+    protected void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 
-    @Builder
-    public User(String email, ) {
-
+    public void updateProfile(String email, String username, String phone) {
+        this.email = email;
+        this.username = username;
+        this.phone = phone;
     }
 
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }
 
 /*
@@ -69,9 +72,13 @@ public class User {
 @Setter
     모든 필드의 setter 메서드 자동 생성
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-    파라미터가 없는 기본 생성자 생성
-    protected 접근 제한자로 설정
+생성자 관련(Lombok)
+    @RequiredArgsConstructor
+        - final이나 @NonNull이 붙은 필드에 대한 생성자 자동 생성
+    @AllArgsConstructor
+        - 모든 필드를 파라미터로 받는 생성자 생성
+    @NoArgsConstructor
+        - 파라미터가 없는 기본 생성자 생성
 
 @Id
     해당 필드가 기본키(pk)임을 나타냄
@@ -82,6 +89,7 @@ public class User {
 
 @Column(nullable = false, length = 50, unique = true)
     데이터베이스 테이블의 컬럼과 관련된 설정을 지정할 때 사용
+
     nullable : 이 필드는 NULL 값을 허용하지 않음
     length : 문자열 컬럼의 최대 길이를 지정
     unique : 해당 컬럼의 값은 유일해야 함
@@ -99,5 +107,12 @@ public class User {
 @PreUpdate
     엔티티가 업데이트 되기 전에 실행될 메서드 지정
     수정 시간 자동 설정에 사용
+
+@PrePersist  // INSERT 전
+@PostPersist // INSERT 후
+@PreUpdate   // UPDATE 전
+@PostUpdate  // UPDATE 후
+@PreRemove   // DELETE 전
+@PostRemove  // DELETE 후
 
 */
