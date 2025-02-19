@@ -1,4 +1,4 @@
-package pratice.user_management.domain;
+package pratice.user_management.domain.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -2,9 +2,10 @@ package pratice.user_management.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pratice.user_management.domain.User;
-import pratice.user_management.domain.UserCreateDTO;
-import pratice.user_management.domain.UserDTO;
+import pratice.user_management.domain.entity.User;
+import pratice.user_management.domain.dto.UserCreateDTO;
+import pratice.user_management.domain.dto.UserDTO;
+import pratice.user_management.exception.UserNotFoundException;
 import pratice.user_management.repository.UserRepository;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class UserService {
      */
     public UserDTO getUser(Long id) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         return new UserDTO(user.getEmail(), user.getUsername(), user.getPhone(), user.getCreatedAt());
     }
 
@@ -52,7 +53,7 @@ public class UserService {
      */
     public void deleteUser(Long id) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         repository.delete(user);
     }
 
@@ -61,7 +62,7 @@ public class UserService {
      */
     public UserDTO updateUser(Long id, UserCreateDTO userCreateDTO) {
         User existingUser = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         existingUser.updateProfile(
                 userCreateDTO.getEmail(),

@@ -1,13 +1,15 @@
 package pratice.user_management.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pratice.user_management.domain.UserCreateDTO;
-import pratice.user_management.domain.UserDTO;
+import pratice.user_management.domain.dto.UserCreateDTO;
+import pratice.user_management.domain.dto.UserDTO;
 import pratice.user_management.service.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController     // REST API 컨트롤러 선언
 @RequestMapping("/users")    // 모든 엔드포인트가 "/user 로 시작
@@ -34,8 +36,16 @@ public class UserController {
      * @return 조회된 사용자 DTO
      */
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+    public ResponseEntity<?> getUser(@PathVariable Long id) {
         UserDTO user = service.getUser(id);
+
+        // 올바른 값이 아닌 경우, 근데 이건 알아서 걸러지므로 생략
+        /*
+        if(id == 0) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+        */
+
         return ResponseEntity.ok(user);
     }
 
@@ -141,4 +151,83 @@ ResponseEntity
     응답 데이터 + HTTP 상태 코드를 함께 반환할 수 있음
     컨트롤러에서 API 응답을 보낼 때 유용
 
+기본적인 ResponseEntity의 활용 방법
+    HTTP 200 OK 응답
+    return ResponseEntity.ok(user);
+
+    HTTP 201 Created 응답
+    return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully!");
+
+    HTTP 400 Bad Request 응답
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user data");
+
+    HTTP 404 Not Found 응답
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+
+    HTTP 500 Internal Server Error 응답
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error occurred");
+
+
+예시
+    매핑
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+        UserDTO user = userService.getUserById(id);
+        return ResponseEntity.ok(user); // ⭐ HTTP 200 OK + 유저 데이터 반환
+    }
+    HTTP 응답
+        헤더
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+        json
+            {
+                "email": "test@example.com",
+                "username": "testuser",
+                "phone": "010-1234-5678",
+                "createdAt": "2024-02-19T12:00:00"
+            }
+
+
+
+    @PostMapping
+    public ResponseEntity<String> createUser(@RequestBody UserCreateDTO userCreateDTO) {
+        userService.createUser(userCreateDTO);
+        return ResponseEntity.ok("User created successfully!"); // ⭐ HTTP 200 OK + 메시지 반환
+    }
+    HTTP 응답
+        헤더
+            HTTP/1.1 201 Created
+            Content-Type: text/plain
+        json
+            "User created successfully!"
+
 */
+
+/*
+주요 HTTP 상태 코드 정리
+    1xx (정보 응답)
+        100 Continue → 요청 일부를 수신했으며, 계속 요청을 진행해도 됨.
+        101 Switching Protocols → 클라이언트가 요청한 프로토콜로 변경됨.
+    2xx (성공)
+        200 OK → 요청이 정상적으로 처리됨.
+        201 Created → 요청이 성공적으로 수행되었으며, 새로운 리소스가 생성됨.
+        204 No Content → 요청이 성공했으나, 응답할 콘텐츠가 없음.
+    3xx (리다이렉션)
+        301 Moved Permanently → 리소스가 영구적으로 이동됨.
+        302 Found → 리소스가 임시적으로 이동됨.
+        304 Not Modified → 캐시된 버전을 사용하도록 클라이언트에게 요청.
+    4xx (클라이언트 오류)
+        400 Bad Request → 잘못된 요청 (문법 오류, 잘못된 파라미터).
+        401 Unauthorized → 인증이 필요함 (로그인이 필요).
+        403 Forbidden → 권한이 없어 접근 불가.
+        404 Not Found → 요청한 리소스를 찾을 수 없음.
+        405 Method Not Allowed → 요청한 메서드가 허용되지 않음.
+        429 Too Many Requests → 너무 많은 요청을 보냄 (Rate Limit 초과).
+    5xx (서버 오류)
+        500 Internal Server Error → 서버 내부 오류 (일반적인 서버 문제).
+        502 Bad Gateway → 게이트웨이 또는 프록시 서버가 잘못된 응답을 받음.
+        503 Service Unavailable → 서버 과부하 또는 유지보수 중.
+        504 Gateway Timeout → 서버가 응답을 기다리다 타임아웃 발생.
+
+*/
+
